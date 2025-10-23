@@ -6,11 +6,34 @@ import patientRoutes from "./routes/Enetram/patient/patient.route.js";
 import inquiryRouter from "./routes/Enetram/inquiry/inquiry.route.js";
 import appointment from "./routes/Enetram/appointment/appointment.route.js";
 import enetramLogin from "./routes/Enetram/auth/login.route.js";
+import https from "https";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import {dirname} from "path";
+import {fileURLToPath} from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+
+var options = {
+ //  key: fs.readFileSync('/etc/letsencrypt/live/nodeapi.enetram.com/privkey.pem'),
+ //  cert: fs.readFileSync('/etc/letsencrypt/live/nodeapi.enetram.com/fullchain.pe>
+  key: fs.readFileSync(path.join(__dirname, '/ssl/privkey.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '/ssl/fullchain.pem')),
+  //  requestCert: false,
+  rejectUnauthorized: false
+};
+
+
+const server = https.createServer(options,app);
 
 sequelize
   .authenticate()

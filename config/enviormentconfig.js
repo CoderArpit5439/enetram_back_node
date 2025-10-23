@@ -28,10 +28,15 @@ const envconfig = {
   port: isProd ? process.env.PORT_PROD : process.env.PORT_DEV,
 
   db: {
-    host: isProd ? process.env.DB_HOST_PROD : process.env.DB_HOST_DEV,
-    user: isProd ? process.env.DB_USER_PROD : process.env.DB_USER_DEV,
-    password: isProd ? process.env.DB_PASSWORD_PROD : process.env.DB_PASSWORD_DEV,
-    name: isProd ? process.env.DB_NAME_PROD : process.env.DB_NAME_DEV
+   // host: isProd ? process.env.DB_HOST_PROD : process.env.DB_HOST_DEV,
+   // user: isProd ? process.env.DB_USER_PROD : process.env.DB_USER_DEV,
+   // password: isProd ? process.env.DB_PASSWORD_PROD : process.env.DB_PASSWORD_DEV,
+   // name: isProd ? process.env.DB_NAME_PROD : process.env.DB_NAME_DEV
+
+    host: process.env.DB_HOST_PROD,
+    user: process.env.DB_USER_PROD,
+    password: process.env.DB_PASSWORD_PROD,
+    name: process.env.DB_NAME_PROD
   }
 };
 

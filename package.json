@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon/index.js"
+    "start": "nodemon/index.js",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -15,12 +16,17 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
     "multer": "^2.0.2",
     "mysql2": "^3.15.2",
     "nodemon": "^3.1.10",
-    "sequelize": "^6.37.7"
+    "path": "^0.12.7",
+    "pm2": "^6.0.13",
+    "sequelize": "^6.37.7",
+    "url": "^0.11.4"
   }
 }
