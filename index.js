@@ -12,6 +12,7 @@ import fs from "fs";
 import path from "path";
 import {dirname} from "path";
 import {fileURLToPath} from "url";
+import myFarmUserRoutes from "./routes/MyFarm/myFarmUser/myFarmUserRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,6 +66,8 @@ app.use("/api/appointment",appointment)
 // login
 
 app.use("/api/enetram-login",enetramLogin)
+
+app.use("/api",myFarmUserRoutes)
 
 const PORT = process.env.PORT_DEV || 5000;
 app.listen(PORT, () => {
