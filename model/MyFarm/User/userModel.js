@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
 
 const myFarmUser = myFarmDBConection.define(
-  "myFarmUser",
+  "myfarmuser",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -44,8 +44,7 @@ const myFarmUser = myFarmDBConection.define(
   },
 
   {
-    tableName: "myFarmUser",
-
+    tableName: "myfarmuser",
     timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at",
@@ -54,5 +53,9 @@ const myFarmUser = myFarmDBConection.define(
     deletedAt: "deleted_at",
   }
 );
+// myFarmUser.hasMany(myFarmHouse, {
+//   foreignKey: "id",
+//   onDelete: "CASCADE", 
+// });
 
 export default myFarmUser;
