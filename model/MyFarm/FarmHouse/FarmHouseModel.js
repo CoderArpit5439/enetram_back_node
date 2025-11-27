@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
 
 const myFarmHouseModel = myFarmDBConection.define(
-  "myfarmhouse",
+  "myFarmHouseModel",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -71,8 +71,12 @@ const myFarmHouseModel = myFarmDBConection.define(
       allowNull: true,
     },
 
-    upload_media: {
-      type: DataTypes.JSON, 
+    front_image: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    slider_images: {
+      type: DataTypes.JSON,
       allowNull: true,
     },
 

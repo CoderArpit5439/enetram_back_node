@@ -13,6 +13,9 @@ import path from "path";
 import {dirname} from "path";
 import {fileURLToPath} from "url";
 import myFarmUserRoutes from "./routes/MyFarm/myFarmUser/myFarmUserRoute.js";
+import myFarmHouseRoute from "./routes/MyFarm/myFarmHouse/myFarmHouseRoute.js";
+import { myFarmDBConection } from "./config/myFarm/mydb.js";
+import farmCustomerRoutes from "./routes/MyFarm/farmHouseCustomer/farmhouseCustomerRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -42,7 +45,7 @@ sequelize
   .then(() => console.log("✅ Database connected"))
   .catch((err) => console.error("❌ DB connection error:", err));
 
-// sequelize.sync({ alter: true })
+// myFarmDBConection.sync({ alter: true })
 //   .then(() => {
 //     console.log("✅ All models synced with the database");
 //   })
@@ -68,6 +71,11 @@ app.use("/api/appointment",appointment)
 app.use("/api/enetram-login",enetramLogin)
 
 app.use("/api",myFarmUserRoutes)
+
+app.use("/api",myFarmHouseRoute)
+
+app.use("/api",farmCustomerRoutes)
+
 
 const PORT = process.env.PORT_DEV || 5000;
 app.listen(PORT, () => {

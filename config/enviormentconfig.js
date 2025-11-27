@@ -39,9 +39,7 @@ const envconfig = {
 
   jwtSecret: process.env.JWT_SECRET,
 
-  // ------------------------
-  // Email / SMTP config
-  // ------------------------
+  
   email: {
     host: isProd ? process.env.SMTP_HOST_PROD : process.env.SMTP_HOST,
     port: isProd ? process.env.SMTP_PORT_PROD : process.env.SMTP_PORT,

@@ -1,36 +1,45 @@
-import myFarmHouse from "../../../model/MyFarm/FarmHouse/FarmHouseModel.js";
+import myFarmHouseModel from "../../../model/MyFarm/FarmHouse/FarmHouseModel.js";
+
 import fs from "fs";
 
 export const addFarmHouse = async (req, res) => {
   try {
-    console.log('Request Body:', req.body);
-    console.log('Uploaded Files:', req.files);
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
 
-    // Parse array fields from JSON strings
+    // Helper for parsing array fields
     const parseArrayField = (field) => {
-      if (!field || field === '') return [];
+      if (!field) return null;
       try {
-        if (typeof field === 'string') {
-          return JSON.parse(field);
-        }
-        return Array.isArray(field) ? field : [field];
-      } catch (error) {
-        console.log(`Error parsing field: ${field}`, error);
-        return Array.isArray(field) ? field : [field];
+        return JSON.stringify(JSON.parse(field)); // store as JSON text
+      } catch {
+        return JSON.stringify([field]); // fallback as array
       }
     };
-    
 
-   
-    const mediaFiles = req.files && req.files.length > 0 
-      ? req.files.map((file) => ({
-          fileName: file.filename,
-          path: file.path,
-          originalName: file.originalname,
-          mimetype: file.mimetype,
-          size: file.size
-        }))
-      : [];
+    const frontImage = req.files?.front_image?.[0] || null;
+    const sliderImages = req.files?.slider_images || [];
+
+    const front_image = frontImage
+      ? {
+          fileName: frontImage.filename,
+          path: frontImage.path,
+          originalName: frontImage.originalname,
+          mimetype: frontImage.mimetype,
+          size: frontImage.size,
+        }
+      : null;
+
+    const slider_images =
+      sliderImages.length > 0
+        ? sliderImages.map((img) => ({
+            fileName: img.filename,
+            path: img.path,
+            originalName: img.originalname,
+            mimetype: img.mimetype,
+            size: img.size,
+          }))
+        : null;
 
     const {
       user_id,
@@ -72,7 +81,7 @@ export const addFarmHouse = async (req, res) => {
       twitter_link,
     } = req.body;
 
-   
+    // Required fields
     if (!user_id || !farm_house_name || !address) {
       return res.status(400).json({
         success: false,
@@ -80,7 +89,6 @@ export const addFarmHouse = async (req, res) => {
       });
     }
 
-    
     const farmhouseData = {
       user_id: parseInt(user_id),
       farm_house_name,
@@ -94,37 +102,69 @@ export const addFarmHouse = async (req, res) => {
       whatsapp_no: whatsapp_no || null,
       contact_person_name: contact_person_name || null,
       contact_person_number: contact_person_number || null,
-      upload_media: mediaFiles,
+
+      // Fixed image fields
+      front_image,
+      slider_images,
+
       details_about: details_about || null,
       home_rules: parseArrayField(home_rules),
       policy: parseArrayField(policy),
       amenities: parseArrayField(amenities),
+
       total_rooms: total_rooms ? parseInt(total_rooms) : null,
       area_size: area_size || null,
-      price_day_weekdays: price_day_weekdays ? parseFloat(price_day_weekdays) : null,
-      price_day_weekend: price_day_weekend ? parseFloat(price_day_weekend) : null,
-      same_day_booking_weekdays: same_day_booking_weekdays || null,
-      same_day_booking_weekend: same_day_booking_weekend || null,
-      no_of_guest_allowed: no_of_guest_allowed ? parseInt(no_of_guest_allowed) : null,
+
+      price_day_weekdays: price_day_weekdays
+        ? parseFloat(price_day_weekdays)
+        : null,
+      price_day_weekend: price_day_weekend
+        ? parseFloat(price_day_weekend)
+        : null,
+
+      same_day_booking_weekdays: same_day_booking_weekdays
+        ? parseFloat(same_day_booking_weekdays)
+        : null,
+
+      same_day_booking_weekend: same_day_booking_weekend
+        ? parseFloat(same_day_booking_weekend)
+        : null,
+
+      no_of_guest_allowed: no_of_guest_allowed
+        ? parseInt(no_of_guest_allowed)
+        : null,
+
       bathrooms: bathrooms ? parseInt(bathrooms) : null,
-      extra_person_charge: extra_person_charge ? parseFloat(extra_person_charge) : null,
-      number_of_extra_person: number_of_extra_person ? parseInt(number_of_extra_person) : null,
-      advance_payment_percentage: advance_payment_percentage ? parseFloat(advance_payment_percentage) : null,
-      with_stay_in: with_stay_in || null,
-      with_stay_out: with_stay_out || null,
-      without_stay_in: without_stay_in || null,
-      without_stay_out: without_stay_out || null,
+
+      extra_person_charge: extra_person_charge
+        ? parseFloat(extra_person_charge)
+        : null,
+
+      number_of_extra_person: number_of_extra_person
+        ? parseInt(number_of_extra_person)
+        : null,
+
+      advance_payment_percentage: advance_payment_percentage
+        ? parseFloat(advance_payment_percentage)
+        : null,
+
+      with_stay_in: with_stay_in ? parseFloat(with_stay_in) : null,
+      with_stay_out: with_stay_out ? parseFloat(with_stay_out) : null,
+      without_stay_in: without_stay_in ? parseFloat(without_stay_in) : null,
+      without_stay_out: without_stay_out ? parseFloat(without_stay_out) : null,
+
       room_details: room_details || null,
       law_details: law_details || null,
       pool_details: pool_details || null,
-      facebook_link: facebook_link || null,
-      instagram_link: instagram_link || null,
-      twitter_link: twitter_link || null,
+
+      facebook_link,
+      instagram_link,
+      twitter_link,
     };
 
-    console.log('Processed Farmhouse Data:', farmhouseData);
+    const FarmHouseModel = new myFarmHouseModel();
 
-    const newFarm = await myFarmHouse.create(farmhouseData);
+    const newFarm = await myFarmHouseModel.create(farmhouseData);
 
     return res.status(201).json({
       success: true,
@@ -138,168 +178,171 @@ export const addFarmHouse = async (req, res) => {
       success: false,
       message: "Internal Server Error",
       error: error.message,
+      stack: error.stack,
     });
   }
 };
 
-export const editFarmHouse = async (req, res) => {
+export const updateFarmHouse = async (req, res) => {
   try {
-    const { id } = req.params;
+    const farmHouseId = req.params.id;
 
-    const farmhouse = await myFarmHouse.findOne({ where: { id } });
-    if (!farmhouse) {
+    const existingFarmHouse = await myFarmHouseModel.findByPk(farmHouseId);
+
+    if (!existingFarmHouse) {
       return res.status(404).json({
         success: false,
-        message: "Farm House not found",
+        message: "Farmhouse not found",
       });
     }
 
-    const newMedia =
-      req.files?.map((f) => ({
-        fileName: f.filename,
-        path: f.path,
-      })) || [];
+    const frontImage = req.files?.front_image?.[0] || null;
+    const sliderImages = req.files?.slider_images || [];
 
-    const oldMedia = req.body.old_media ? JSON.parse(req.body.old_media) : [];
-
-    const deleteMedia = req.body.delete_media
-      ? JSON.parse(req.body.delete_media)
-      : [];
-
-    deleteMedia.forEach((media) => {
-      try {
-        if (media.path && fs.existsSync(media.path)) {
-          fs.unlinkSync(media.path); // delete file from server
+    const front_image = frontImage
+      ? {
+          fileName: frontImage.filename,
+          path: frontImage.path,
+          originalName: frontImage.originalname,
+          mimetype: frontImage.mimetype,
+          size: frontImage.size,
         }
-      } catch (err) {
-        console.log("File delete error:", err);
-      }
-    });
+      : existingFarmHouse.front_image;
 
-    const finalMedia = [...oldMedia, ...newMedia];
+    const slider_images =
+      sliderImages.length > 0
+        ? sliderImages.map((img) => ({
+            fileName: img.filename,
+            path: img.path,
+            originalName: img.originalname,
+            mimetype: img.mimetype,
+            size: img.size,
+          }))
+        : existingFarmHouse.slider_images;
 
-    const updatedFarm = await farmhouse.update({
+    const updatedData = {
       ...req.body,
-      upload_media: finalMedia,
-    });
+      front_image,
+      slider_images,
+    };
+
+    await existingFarmHouse.update(updatedData);
 
     return res.status(200).json({
       success: true,
-      message: "Farm House Updated Successfully",
-      data: updatedFarm,
+      message: "Farmhouse updated successfully",
+      data: existingFarmHouse,
     });
   } catch (error) {
-    console.error("FarmHouse Update Error:", error);
-
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Update failed",
       error: error.message,
     });
   }
 };
+
 
 export const deleteFarmHouse = async (req, res) => {
   try {
-    const { id } = req.params;
+    const farmHouseId = req.params.id;
 
-    const farmhouse = await myFarmHouse.findOne({ where: { id } });
+    const farmHouse = await myFarmHouseModel.findByPk(farmHouseId);
 
-    if (!farmhouse) {
+    if (!farmHouse) {
       return res.status(404).json({
         success: false,
-        message: "Farm House not found",
+        message: "Farmhouse not found",
       });
     }
 
-    // 🟦 DELETE MEDIA FILES FROM SERVER
-    const mediaFiles = farmhouse.upload_media || [];
-
-    mediaFiles.forEach((file) => {
-      try {
-        if (file.path && fs.existsSync(file.path)) {
-          fs.unlinkSync(file.path); // remove file
-        }
-      } catch (err) {
-        console.log("Media delete error: ", err);
-      }
-    });
-
-    // 🟦 Paranoid Delete (Soft Delete)
-    await farmhouse.destroy();
+    await farmHouse.destroy();
 
     return res.status(200).json({
       success: true,
-      message: "Farm House Deleted Successfully",
+      message: "Farmhouse deleted successfully",
     });
   } catch (error) {
-    console.error("FarmHouse Delete Error:", error);
-
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Delete failed",
       error: error.message,
     });
   }
 };
 
-export const getFarmHousesByUser = async (req, res) => {
+
+export const getFarmHouseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const farmhouse = await myFarmHouseModel.findByPk(id);
+
+    if (!farmhouse) {
+      return res.status(404).json({
+        success: false,
+        message: "Farmhouse not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: farmhouse,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Fetch failed",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getFarmHousesByUserId = async (req, res) => {
   try {
     const { user_id } = req.params;
 
-    if (!user_id) {
-      return res.status(400).json({
-        success: false,
-        message: "user_id is required",
-      });
-    }
-
-    const list = await myFarmHouse.findAll({
+    const farmHouses = await myFarmHouseModel.findAll({
       where: { user_id },
-      order: [["created_at", "DESC"]],
+      order: [["id", "DESC"]],
     });
 
     return res.status(200).json({
       success: true,
-      message: "FarmHouses fetched successfully",
-      data: list,
+      count: farmHouses.length,
+      data: farmHouses,
     });
-  } catch (error) {
-    console.error("Get Farmhouses Error:", error);
 
+  } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Fetch failed",
       error: error.message,
     });
   }
 };
 
-export const getSingleFarmHouse = async (req, res) => {
+
+export const getAllFarmHouses = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const farmhouse = await myFarmHouse.findOne({ where: { id } });
-
-    if (!farmhouse) {
-      return res.status(404).json({
-        success: false,
-        message: "Farm House not found",
-      });
-    }
+    const farmHouses = await myFarmHouseModel.findAll({
+      order: [["id", "DESC"]],
+    });
 
     return res.status(200).json({
       success: true,
-      message: "Farm House fetched successfully",
-      data: farmhouse,
+      count: farmHouses.length,
+      data: farmHouses,
     });
-  } catch (error) {
-    console.error("Get Single FarmHouse Error:", error);
 
+  } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Fetch failed",
       error: error.message,
     });
   }
 };
+

@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
+import myFarmHouseModel from "../FarmHouse/FarmHouseModel.js";
 
 const myFarmUser = myFarmDBConection.define(
   "myfarmuser",
@@ -53,9 +54,13 @@ const myFarmUser = myFarmDBConection.define(
     deletedAt: "deleted_at",
   }
 );
-// myFarmUser.hasMany(myFarmHouse, {
-//   foreignKey: "id",
-//   onDelete: "CASCADE", 
-// });
+myFarmUser.hasMany(myFarmHouseModel, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+});
+
+myFarmHouseModel.belongsTo(myFarmUser, {
+  foreignKey: "user_id",
+});
 
 export default myFarmUser;
