@@ -1,3 +1,4 @@
+
 import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
 
@@ -212,3 +213,4 @@ const myFarmHouseModel = myFarmDBConection.define(
 );
 
 export default myFarmHouseModel;
+

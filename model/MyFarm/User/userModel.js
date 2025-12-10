@@ -1,3 +1,4 @@
+
 import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
 import myFarmHouseModel from "../FarmHouse/FarmHouseModel.js";
@@ -87,3 +88,4 @@ Booking.belongsTo(myFarmUser, {
   foreignKey: "user_id",
 });
 export default myFarmUser;
+
