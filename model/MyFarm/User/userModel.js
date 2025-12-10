@@ -1,6 +1,10 @@
+
 import { DataTypes } from "sequelize";
 import { myFarmDBConection } from "../../../config/myFarm/mydb.js";
 import myFarmHouseModel from "../FarmHouse/FarmHouseModel.js";
+import bankDetails from "./bankDetailModel.js";
+import bankDetailModel from "./bankDetailModel.js";
+import Booking from "./bookingModel.js";
 
 const myFarmUser = myFarmDBConection.define(
   "myfarmuser",
@@ -56,11 +60,32 @@ const myFarmUser = myFarmDBConection.define(
 );
 myFarmUser.hasMany(myFarmHouseModel, {
   foreignKey: "user_id",
+  as: "farmHouse",
   onDelete: "CASCADE",
+});
+
+myFarmUser.hasMany(bankDetailModel, {
+  foreignKey: "user_id",
+  as: "bankdetails",
+  onDelete: "CASCADE",
+});
+
+myFarmUser.hasMany(Booking, {
+  foreignKey: "user_id",
+  as: "booking",
+  onDelete: "CASCADE",
+});
+
+bankDetailModel.belongsTo(myFarmUser, {
+  foreignKey: "user_id",
 });
 
 myFarmHouseModel.belongsTo(myFarmUser, {
   foreignKey: "user_id",
 });
 
+Booking.belongsTo(myFarmUser, {
+  foreignKey: "user_id",
+});
 export default myFarmUser;
+

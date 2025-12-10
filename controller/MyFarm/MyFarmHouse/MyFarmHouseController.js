@@ -1,6 +1,5 @@
-import myFarmHouseModel from "../../../model/MyFarm/FarmHouse/FarmHouseModel.js";
 
-import fs from "fs";
+import myFarmHouseModel from "../../../model/MyFarm/FarmHouse/FarmHouseModel.js";
 
 export const addFarmHouse = async (req, res) => {
   try {
@@ -345,4 +344,3 @@ export const getAllFarmHouses = async (req, res) => {
     });
   }
 };
-
