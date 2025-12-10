@@ -13,7 +13,7 @@ const myFarmUserRoutes = express.Router();
 
 myFarmUserRoutes.post("/register-user", farmUserRegister);
 myFarmUserRoutes.post("/otp-verify", verifyOtp);
-myFarmUserRoutes.get("/single-user/:id", fetchSingleUser);
+myFarmUserRoutes.get("/single-user", fetchSingleUser);
 myFarmUserRoutes.post("/login", farmUserLogin);
 myFarmUserRoutes.post("/reset-password-request", sendResetPasswordRequest);
 myFarmUserRoutes.post("/reset-password-with-otp", verifyOtpforResetPasword);

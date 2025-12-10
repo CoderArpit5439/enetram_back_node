@@ -20,6 +20,11 @@ const bankDetailModel = myFarmDBConection.define(
       allowNull: false,
     },
 
+     bankAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     accountNumber: {
       type: DataTypes.STRING,
     },
