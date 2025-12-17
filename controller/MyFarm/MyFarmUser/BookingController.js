@@ -289,7 +289,7 @@ export const getAllBookings = async (req, res) => {
 
     // Search by customer name
     if (search) {
-      whereCondition.customer_name = { [Op.like]: `%${search}%` };
+      whereCondition.customer = { [Op.like]: `%${search}%` };
     }
 
     // Filter by status

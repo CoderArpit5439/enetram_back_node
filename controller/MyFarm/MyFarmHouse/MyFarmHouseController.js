@@ -3,26 +3,50 @@ import myFarmHouseModel from "../../../model/MyFarm/FarmHouse/FarmHouseModel.js"
 
 export const addFarmHouse = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
-    console.log("Uploaded Files:", req.files);
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-    // Helper for parsing array fields
+ 
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing or invalid",
+      });
+    }
+
+    const token = authHeader.split(" ")[1].trim();
+
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token",
+      });
+    }
+
+    const authUserId = decoded.user.id; // ✅ ONLY JWT user_id
+
+  
     const parseArrayField = (field) => {
-      if (!field) return null;
+      if (!field) return JSON.stringify([]);
       try {
-        return JSON.stringify(JSON.parse(field)); // store as JSON text
+        return JSON.stringify(JSON.parse(field));
       } catch {
-        return JSON.stringify([field]); // fallback as array
+        return JSON.stringify([field]);
       }
     };
 
-    const frontImage = req.files?.front_image?.[0] || null;
-    const sliderImages = req.files?.slider_images || [];
+    const frontImage = req.files?.front_image?.[0] ?? null;
+    const sliderImages = req.files?.slider_images ?? [];
 
     const front_image = frontImage
       ? {
           fileName: frontImage.filename,
-          path: frontImage.path,
+          url: `${baseUrl}/uploads/${frontImage.filename}`,
           originalName: frontImage.originalname,
           mimetype: frontImage.mimetype,
           size: frontImage.size,
@@ -33,15 +57,14 @@ export const addFarmHouse = async (req, res) => {
       sliderImages.length > 0
         ? sliderImages.map((img) => ({
             fileName: img.filename,
-            path: img.path,
+            url: `${baseUrl}/uploads/${img.filename}`,
             originalName: img.originalname,
             mimetype: img.mimetype,
             size: img.size,
           }))
-        : null;
+        : [];
 
     const {
-      user_id,
       farm_house_name,
       address,
       latitude,
@@ -80,20 +103,20 @@ export const addFarmHouse = async (req, res) => {
       twitter_link,
     } = req.body;
 
-    // Required fields
-    if (!user_id || !farm_house_name || !address) {
+
+    if (!farm_house_name || !address) {
       return res.status(400).json({
         success: false,
-        message: "user_id, farm_house_name and address are required.",
+        message: "farm_house_name and address are required",
       });
     }
 
     const farmhouseData = {
-      user_id: parseInt(user_id),
+      user_id: authUserId,
       farm_house_name,
       address,
-      latitude: latitude || null,
-      longitude: longitude || null,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
       map_link: map_link || null,
       city: city || null,
       email: email || null,
@@ -102,7 +125,6 @@ export const addFarmHouse = async (req, res) => {
       contact_person_name: contact_person_name || null,
       contact_person_number: contact_person_number || null,
 
-      // Fixed image fields
       front_image,
       slider_images,
 
@@ -124,7 +146,6 @@ export const addFarmHouse = async (req, res) => {
       same_day_booking_weekdays: same_day_booking_weekdays
         ? parseFloat(same_day_booking_weekdays)
         : null,
-
       same_day_booking_weekend: same_day_booking_weekend
         ? parseFloat(same_day_booking_weekend)
         : null,
@@ -156,28 +177,26 @@ export const addFarmHouse = async (req, res) => {
       law_details: law_details || null,
       pool_details: pool_details || null,
 
-      facebook_link,
-      instagram_link,
-      twitter_link,
+      facebook_link: facebook_link || null,
+      instagram_link: instagram_link || null,
+      twitter_link: twitter_link || null,
     };
 
-    const FarmHouseModel = new myFarmHouseModel();
-
-    const newFarm = await myFarmHouseModel.create(farmhouseData);
+  
+    const newFarmHouse = await myFarmHouseModel.create(farmhouseData);
 
     return res.status(201).json({
       success: true,
       message: "Farm House Added Successfully",
-      data: newFarm,
+      data: newFarmHouse,
     });
-  } catch (error) {
-    console.error("FarmHouse Add Error: ", error);
 
+  } catch (error) {
+    console.error("FarmHouse Add Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
       error: error.message,
-      stack: error.stack,
     });
   }
 };
