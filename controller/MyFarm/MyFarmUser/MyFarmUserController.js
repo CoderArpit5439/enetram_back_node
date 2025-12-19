@@ -595,6 +595,7 @@ export const fetchSingleUser = async (req, res) => {
 
     const id = decoded.user.id;
 
+
     const user = await myFarmUser.findOne({
       where: { id },
       attributes: { exclude: ["password"] },
@@ -617,6 +618,8 @@ export const fetchSingleUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User not found",
+        data : [],
+        id:id
       });
     }
 
@@ -631,7 +634,7 @@ export const fetchSingleUser = async (req, res) => {
     });
 
     const bookingCount = await Booking.count({
-      where: { user_id, id },
+      where: { user_id: id },
       paranoid: false,
     });
 

@@ -1,9 +1,12 @@
 import jwt from "jsonwebtoken";
-import bookingModel from "../../../model/MyFarm/User/bookingModel.js";
+import Booking from "../../../model/MyFarm/User/bookingModel.js";
+
 
 export const createBooking = async (req, res) => {
   try {
+   
     const authHeader = req.headers.authorization;
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(400).json({
         success: false,
@@ -11,11 +14,11 @@ export const createBooking = async (req, res) => {
       });
     }
 
-    const otpToken = authHeader.split(" ")[1].trim();
+    const token = authHeader.split(" ")[1].trim();
 
     let decoded;
     try {
-      decoded = jwt.verify(otpToken, process.env.JWT_SECRET);
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
       return res.status(401).json({
         success: false,
@@ -25,22 +28,84 @@ export const createBooking = async (req, res) => {
 
     const user_id = decoded.user.id;
 
-    const { customer, stay_date, status, action, booked_on } = req.body;
-
-    if (!customer || !stay_date || !status || !action || !booked_on) {
-      return res.status(400).json({
-        success: false,
-        message: "customer, stay_date, status & action are required ",
-      });
-    }
-
-    const newBooking = await bookingModel.create({
-      user_id,
-      customer,
+    // --------------------------
+    // 📌 Extract Fields
+    // --------------------------
+    const {
+      // Essential
+      customer_name,
+      customer_mobile,
       stay_date,
       booked_on,
       status,
       action,
+
+      // CRM Recommended
+      booking_type,
+      payment_status,
+      payment_mode,
+      guest_count,
+      package_name,
+      price,
+      advance_amount,
+      booking_source,
+      special_request,
+
+      // Rooms / Villas
+      room_type,
+      room_number,
+      extra_services,
+
+      // Optional customer details
+      customer_email,
+      customer_address,
+      remarks,
+    } = req.body;
+
+    // --------------------------
+    // ✔ Validate Required Fields
+    // --------------------------
+    if (!customer_name || !customer_mobile || !stay_date || !booking_type) {
+      return res.status(400).json({
+        success: false,
+        message: "customer_name, customer_mobile, stay_date & booking_type are required",
+      });
+    }
+
+    // --------------------------
+    // 🛠 Create Booking
+    // --------------------------
+    const newBooking = await Booking.create({
+      user_id,
+
+      // Essential
+      customer_name,
+      customer_mobile,
+      stay_date,
+      booked_on: booked_on || new Date(),
+      status,
+      action,
+
+      // CRM fields
+      booking_type,
+      payment_status,
+      payment_mode,
+      guest_count,
+      package_name,
+      price,
+      advance_amount,
+      booking_source,
+      special_request,
+
+      // Rooms
+      room_type,
+      room_number,
+      extra_services,
+
+      // Optional
+      customer_email,
+      customer_address,
+      remarks,
     });
 
     return res.status(201).json({
@@ -56,6 +121,7 @@ export const createBooking = async (req, res) => {
     });
   }
 };
+
 
 export const updateBooking = async (req, res) => {
   try {
@@ -163,7 +229,7 @@ export const getSingleBooking = async (req, res) => {
       });
     }
 
-    const booking = await bookingModel.findOne({
+    const booking = await Booking.findOne({
       where: { id, id },
     });
 
@@ -191,7 +257,6 @@ export const getSingleBooking = async (req, res) => {
 
 export const getAllBookings = async (req, res) => {
   try {
-    
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(400).json({
@@ -200,11 +265,11 @@ export const getAllBookings = async (req, res) => {
       });
     }
 
-    const otpToken = authHeader.split(" ")[1].trim();
+    const token = authHeader.split(" ")[1].trim();
 
     let decoded;
     try {
-      decoded = jwt.verify(otpToken, process.env.JWT_SECRET);
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
       return res.status(401).json({
         success: false,
@@ -222,16 +287,17 @@ export const getAllBookings = async (req, res) => {
 
     const whereCondition = { user_id };
 
+    // Search by customer name
     if (search) {
-      whereCondition.Customer = { [Op.like]: `%${search}%` };
+      whereCondition.customer = { [Op.like]: `%${search}%` };
     }
 
-    
+    // Filter by status
     if (status) {
-      whereCondition.status = status;  
+      whereCondition.status = status;
     }
 
-    const { count, rows } = await bookingModel.findAndCountAll({
+    const { count, rows } = await Booking.findAndCountAll({
       where: whereCondition,
       order: [["created_at", "DESC"]],
       limit,
@@ -246,7 +312,6 @@ export const getAllBookings = async (req, res) => {
       totalBookings: count,
       data: rows,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
